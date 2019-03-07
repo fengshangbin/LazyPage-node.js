@@ -1,6 +1,7 @@
 # LazyPage-node.js
 LazyPage server node.js version  
-LazyPage后端node.js版本
+LazyPage后端node.js版本  
+GitHub Pages: https://github.com/fengshangbin/LazyPage-node.js
 # 关于LazyPage
 参见 https://github.com/fengshangbin/LazyPage
 # 如何使用LazyPage-node.js
