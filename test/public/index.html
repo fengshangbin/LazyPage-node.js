@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0" />
-<title>LazyPage Demo</title>
+<script type="x-tmpl-lazypage" source="cgi/title.json">
+	<title><%=name%></title>
+</script> 
 </head>
 
 <body>
@@ -26,7 +28,7 @@
 <script type="x-tmpl-lazypage" source="cgi/person.json" wait="block1" ajax-data="id={@block1.team}">
 	<p>Hello3, my name is <%=name%>. I'm <%=profile.age%> years old.<%={@block1.team}.length%>.</p>
 </script>
-<script type="x-tmpl-lazypage" source="cgi/person.json" ajax-data="id={&id}">
+<script type="x-tmpl-lazypage" source="cgi/person.json">
 	<%var temp=[3,2,1];%>
 	<p>Hello4, my name is <%=name%>. I'm <%=profile.age%> years old.</p>
 	<%for(var i=0; i<temp.length; i++){%>

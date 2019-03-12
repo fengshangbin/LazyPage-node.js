@@ -143,7 +143,8 @@ function serveStatic (root, options) {
 	var ext = pathNode.extname(path);
 	ext = ext.length>0 ? ext.slice(1) : 'unknown';
 	//console.log("ext: "+ext);
-	if(htmlPaths.has(path) && !lazyPageSpider){
+	//console.log("path: "+path);
+	if((htmlPaths.has(path) || path === '/') && !lazyPageSpider){
 		needRender = true;
 	}else if(ext=="unknown" || ext=="html"){
 		for (let key of map.keys()) {
@@ -174,7 +175,6 @@ function serveStatic (root, options) {
 	  var finished = false
 	  var self = this
 	  var res = this.res
-
 	  // pipe
 	  var stream = fs.createReadStream(path, options)
 	  this.emit('stream', stream)
