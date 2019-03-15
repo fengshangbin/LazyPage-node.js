@@ -27,7 +27,7 @@ var onFinished = require('on-finished')
 var through = require('through2');
 var pathNode = require('path');
 
-var document = require('./lib/document');
+//var document = require('./lib/document');
 var analyzeHtml = require('./lib/analyzeHtml');
 /**
  * Module exports.
