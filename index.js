@@ -144,8 +144,11 @@ function serveStatic (root, options) {
 	ext = ext.length>0 ? ext.slice(1) : 'unknown';
 	//console.log("ext: "+ext);
 	//console.log("path: "+path);
-	if((htmlPaths.has(path) || path === '/') && !lazyPageSpider){
-		needRender = true;
+	var hitHtml = false;
+	if(ext!="unknown" && ext!="html"){
+		
+	}if(htmlPaths.has(path) || (path === '/' && htmlPaths.has("/index.html"))){
+		hitHtml = true;
 	}else if(ext=="unknown" || ext=="html"){
 		for (let key of map.keys()) {
 			//console.log(key);
@@ -157,15 +160,13 @@ function serveStatic (root, options) {
 				//console.log(group.length);
 				if(group.length>1){
 					pathParams = group.slice(1,group.lengths);
-					appentScript = "<script>LazyPage.pathParams=[\""+pathParams.join("\",\"")+"\"]</script>\n";
+					appentScript = "<script>LazyPage.pathParams=[\""+pathParams.join("\",\"")+"\"];LazyPage.pathReg='"+key+"';</script>\n";
 					//console.log(appentScript);
-					needRender = true;
-				}else if(!lazyPageSpider){
-					needRender = true;
 				}
 			}
 		}
 	}
+	if(appentScript || (!lazyPageSpider && hitHtml))needRender = true;
 	//console.log(path, needRender, appentScript);
 	  
     var stream = send(req, path, opts)
