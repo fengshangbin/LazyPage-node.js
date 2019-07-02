@@ -70,7 +70,7 @@ function filter(root) {
           if (reg.test(path)) {
             let group = reg.exec(path);
             path = map[i].value.substring(1);
-            hitHtml = true;
+            appentScript = '1';
             if (group.length > 1) {
               pathParams = group.slice(1, group.lengths);
               appentScript = '<script>LazyPage.pathParams=["' + pathParams.join('","') + '"];</script>\n';
@@ -87,7 +87,7 @@ function filter(root) {
             console.log(err);
             next('code 404, file not found');
           } else {
-            if (appentScript != null) {
+            if (appentScript != null && appentScript != '1') {
               var bodyEnd = html.lastIndexOf('</body>');
               if (bodyEnd > 0) {
                 html = html.substring(0, bodyEnd) + appentScript + html.substring(bodyEnd);

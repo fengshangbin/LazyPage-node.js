@@ -1,17 +1,14 @@
 <p>Hello, my name is <%=name%>. I'm <%=profile.age%> years old.</p>
-<!--<style>p{font-size: 20px;}</style>
-<link rel="stylesheet" href="../css/body.css">-->
-<script id="bodyjs" src="js/body.js"></script>
+<script id="bodyjs" src="/js/body.js"></script>
 <script type="x-tmpl-lazypage" source="{'name':'Krasimir Tsonev2','profile':{'age':3}}">
-	<p>Hello1, my name is <&=name&>. I'm <&=profile.age&> years old.</p>
-	<jscript type="x-tmpl-lazypage" source="{'name':'Krasimir Tsonev3','profile':{'age':4}}">
-		<p>Hello2, my name is <&&=name&&>. I'm <&&=profile.age&&> years old.</p>
-		<jjscript type="x-tmpl-lazypage" source="{'name':'Krasimir Tsonev4','profile':{'age':5}}">
-			<p>Hello3, my name is <&&&=name&&&>. I'm <&&&=profile.age&&&> years old.</p>
-			<jjjscript>
-				console.log("body1");
-			</jjjscript>
-		</jjscript>
-	</jscript>
+  <p>Hello1, my name is <&=name&>. I'm <&=profile.age&> years old.</p>
+  <jscript type="x-tmpl-lazypage" source="{'name':'Krasimir Tsonev3','profile':{'age':4}}">
+  	<p>Hello2, my name is <&&=name&&>. I'm <&&=profile.age&&> years old.</p>
+  	<jjscript type="x-tmpl-lazypage" source="{'name':'Krasimir Tsonev4','profile':{'age':5}}">
+  		<p>Hello3, my name is <&&&=name&&&>. I'm <&&&=profile.age&&&> years old.</p>
+  		<jjjscript>
+  			console.log("body1");
+  		</jjjscript>
+  	</jjscript>
+  </jscript>
 </script>
-<!--<script type="x-tmpl-lazypage" src="/include/_other.html"></script>-->
