@@ -10,11 +10,26 @@ GitHub Pages: https://github.com/fengshangbin/LazyPage-node.js
 
 # 如何使用 LazyPage-node.js
 
-1，导入 lazypage-node.js 到你的项目  
-var lazypage = require('./LazyPage-node.js');  
-2，在项目初始化时 执行 LazyPage 初始化 app.use(lazypage.static('public'));  
-注: lazypage 静态资源初始化入口代码采用 serve-static（express.static） 详见https://github.com/expressjs/serve-static  
-3, 注册全局格式化函数 global.format = require('./public/js/format');
+1，导入 lazypage-node.js 到你的项目
+
+```
+var express = require('express');
+var app = express();
+var lazypage = require('./LazyPage-node.js');
+```
+
+2，在项目初始化时 执行 LazyPage 初始化
+
+```
+app.use(lazypage.filter('test/public'));
+app.use(express.static('test/public'));
+```
+
+3, 如果需要全局执行的函数，注册全局函数
+
+```
+global.format = require('./public/js/format');
+```
 
 ### LazyPage-node.js 使用示例
 
