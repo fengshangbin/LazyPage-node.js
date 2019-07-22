@@ -31,6 +31,8 @@ app.use(express.static('test/public'));
 global.format = require('./public/js/format');
 ```
 
+4, 如果后端访问资源路径和前端不一致（如经过 ngnix 转发），可以调用 lazypage.host(realhost)来设置后端访问资源的 host
+
 ### LazyPage-node.js 使用示例
 
 test/app.js

@@ -5,7 +5,13 @@ var fs = require('fs');
 var pathNode = require('path');
 var analyzeHtml = require('./lib/analyzeHtml');
 
-module.exports = { filter: filter };
+var realHost;
+
+module.exports = { filter: filter, host: host };
+
+function host(_realHost) {
+  realHost = _realHost;
+}
 
 function filter(root) {
   let htmlPaths = new Set();
@@ -100,7 +106,7 @@ function filter(root) {
               var query = fullUrl.split('?');
               query = query.length > 1 ? query[1] : null;
               try {
-                new analyzeHtml().parse(fullUrl, query, html, pathParams, cookies, function(code, result) {
+                new analyzeHtml().parse(realHost, fullUrl, query, html, pathParams, cookies, function(code, result) {
                   if (code == 200) {
                     render(req, res, result);
                   } else {
