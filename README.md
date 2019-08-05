@@ -13,9 +13,13 @@ GitHub Pages: https://github.com/fengshangbin/LazyPage-node.js
 1，导入 lazypage-node.js 到你的项目
 
 ```
+npm install --save-dev lazypage-node
+```
+
+```
 var express = require('express');
 var app = express();
-var lazypage = require('./LazyPage-node.js');
+var lazypage = require('LazyPage-node');
 ```
 
 2，在项目初始化时 执行 LazyPage 初始化
