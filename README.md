@@ -45,7 +45,7 @@ test/app.js
 var express = require('express');
 var app = express();
 
-var lazypage = require('..');
+var lazypage = require('lazypage-node');
 app.use(lazypage.filter('test/public'));
 app.use(express.static('test/public'));
 global.format = require('./public/js/format');
