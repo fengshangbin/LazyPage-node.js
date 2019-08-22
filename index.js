@@ -38,7 +38,7 @@ function filter(root) {
             var sort = 0;
             for (var i = 0; i < realPath.length; i++) {
               var str = realPath.charAt(i);
-              sort += (str == '$' ? 1 : 2) * 10 * (realPath.length - 1);
+              sort += (str == '$' ? 1 : 2) * 10 * (realPath.length - i);
             }
             map.push({
               key: '^' + routePath + '$',
@@ -55,7 +55,7 @@ function filter(root) {
   map.sort(function(a, b) {
     return a.sort < b.sort ? 1 : -1;
   });
-  console.log(map);
+  //console.log(map);
   return (req, res, next) => {
     var path = parseUrl(req).pathname;
     //console.log(path);
