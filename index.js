@@ -4,7 +4,8 @@ var parseUrl = require('parseurl');
 var fs = require('fs');
 var pathNode = require('path');
 var analyzeHtml = require('./lib/analyzeHtml');
-var queryhelp = require('./lib/queryhelp');
+var queryLazyPageSelector = require('./lib/queryLazyPage');
+var queryhelp = require('./lib/queryhelp').QueryHelp;
 
 var realHost;
 
@@ -34,9 +35,15 @@ function filter(root) {
           routePath = routePath.replace(/\+/g, '/');
           routePath = routePath.replace(/\$/g, '([^/]*?)');
           if (routePath != realPath) {
+            var sort = 0;
+            for (var i = 0; i < realPath.length; i++) {
+              var str = realPath.charAt(i);
+              sort += (str == '$' ? 1 : 2) * 10 * (realPath.length - 1);
+            }
             map.push({
               key: '^' + routePath + '$',
-              value: realPath
+              value: realPath,
+              sort: sort
             });
           } else {
             htmlPaths.add(realPath);
@@ -46,9 +53,9 @@ function filter(root) {
     });
   }
   map.sort(function(a, b) {
-    return a.key.length > b.key.length ? 1 : -1;
+    return a.sort < b.sort ? 1 : -1;
   });
-
+  console.log(map);
   return (req, res, next) => {
     var path = parseUrl(req).pathname;
     //console.log(path);
@@ -112,10 +119,17 @@ function filter(root) {
             try {
               new analyzeHtml().parse(realHost, fullUrl, query, html, pathParams, cookies, function(code, result) {
                 if (code == 200) {
-                  /* if (req.query.lazypageTargetSelector) {
-                    console.log(req.query.lazypageTargetSelector);
-                    result = queryhelp.querySelector(result, req.query.lazypageTargetSelector);
-                  } */
+                  if (req.query.lazypageTargetSelector) {
+                    var block = queryLazyPageSelector(result, req.query.lazypageTargetSelector);
+                    var resultJSON = {
+                      block: block,
+                      hasTargetLazyPage: block != null
+                    };
+                    if (block) {
+                      resultJSON.title = queryhelp.querySelector(result, 'title');
+                    }
+                    result = JSON.stringify(resultJSON);
+                  }
                   render(req, res, result);
                 } else {
                   console.log(result);
