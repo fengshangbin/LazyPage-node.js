@@ -19,7 +19,7 @@ npm install --save-dev lazypage-node
 ```
 var express = require('express');
 var app = express();
-var lazypage = require('LazyPage-node');
+var lazypage = require('lazyPage-node');
 ```
 
 2，在项目初始化时 执行 LazyPage 初始化

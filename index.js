@@ -4,6 +4,7 @@ var parseUrl = require('parseurl');
 var fs = require('fs');
 var pathNode = require('path');
 var analyzeHtml = require('./lib/analyzeHtml');
+var queryhelp = require('./lib/queryhelp');
 
 var realHost;
 
@@ -52,9 +53,10 @@ function filter(root) {
     var path = parseUrl(req).pathname;
     //console.log(path);
     var cookies = req.headers.cookie;
-    var lazyPageSpider = cookies && cookies.indexOf('LazyPageSpider=0') > -1;
+    //var lazyPageSpider = cookies && cookies.indexOf('LazyPageSpider=0') > -1;
+    //var lazypageajax = req.headers.lazypageajax;
     var pathParams = null;
-    var appentScript = null;
+    //var appentScript = null;
     var ext = pathNode.extname(path);
     ext = ext.length > 0 ? ext.slice(1) : 'unknown';
     var fileName = pathNode.basename(path);
@@ -76,51 +78,57 @@ function filter(root) {
           if (reg.test(path)) {
             let group = reg.exec(path);
             path = map[i].value.substring(1);
-            appentScript = '1';
+            //appentScript = '1';
             if (group.length > 1) {
               pathParams = group.slice(1, group.lengths);
-              appentScript = '<script>LazyPage.pathParams=["' + pathParams.join('","') + '"];</script>\n';
+              //appentScript = '<script>LazyPage.pathParams=["' + pathParams.join('","') + '"];</script>\n';
             }
+            hitHtml = true;
             break;
           }
         }
       }
       //console.log(lazyPageSpider);
-      if (appentScript || (!lazyPageSpider && hitHtml)) {
+      //if (appentScript || (!lazyPageSpider && hitHtml)) {
+      if (hitHtml) {
         //console.log(path);
         fs.readFile(root + '/' + path, 'utf-8', function(err, html) {
           if (err) {
             console.log(err);
             next('code 404, file not found');
           } else {
-            if (appentScript != null && appentScript != '1') {
+            /* if (appentScript != null && appentScript != '1') {
               var bodyEnd = html.lastIndexOf('</body>');
               if (bodyEnd > 0) {
                 html = html.substring(0, bodyEnd) + appentScript + html.substring(bodyEnd);
               } else {
                 html += '\n' + appentScript;
               }
+            } */
+            //if (!lazyPageSpider) {
+            var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+            var query = fullUrl.split('?');
+            query = query.length > 1 ? query[1] : null;
+            try {
+              new analyzeHtml().parse(realHost, fullUrl, query, html, pathParams, cookies, function(code, result) {
+                if (code == 200) {
+                  /* if (req.query.lazypageTargetSelector) {
+                    console.log(req.query.lazypageTargetSelector);
+                    result = queryhelp.querySelector(result, req.query.lazypageTargetSelector);
+                  } */
+                  render(req, res, result);
+                } else {
+                  console.log(result);
+                  next('server error');
+                }
+              });
+            } catch (error) {
+              console.log(error);
+              next('server error');
             }
-            if (!lazyPageSpider) {
-              var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-              var query = fullUrl.split('?');
-              query = query.length > 1 ? query[1] : null;
-              try {
-                new analyzeHtml().parse(realHost, fullUrl, query, html, pathParams, cookies, function(code, result) {
-                  if (code == 200) {
-                    render(req, res, result);
-                  } else {
-                    console.log(result);
-                    next('server error');
-                  }
-                });
-              } catch (error) {
-                console.log(error);
-                next('server error');
-              }
-            } else {
+            /* } else {
               render(req, res, html);
-            }
+            } */
           }
         });
       } else {
