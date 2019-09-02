@@ -22,7 +22,7 @@
       	<%}%>
       <%}%>
     </script>
-    <script type="x-tmpl-lazypage" source="cgi/person.json" lazy="true" id="lazy-block">
+    <script type="x-tmpl-lazypage" source="cgi/person.json">
       <p>Hello2, my name is <%=name%>. I'm <%=profile.age%> years old.</p>
     </script>
     <script type="x-tmpl-lazypage" source="cgi/person.json" wait="block1" ajax-data="id={@block1.team}">
@@ -36,16 +36,5 @@
       <%}%>
     </script>
     <script type="x-tmpl-lazypage" source="{'name':'Krasimir Tsonev','profile':{'age':2}}" src="include/_body.html?v=haha"></script>
-    <script src="dist/lazypage.js"></script>
-    <script src="js/format.js"></script>
-    <script>
-      LazyPage.ready(function() {
-        var person = document.getElementById('lazy-block');
-        person.setAttribute('ajax-data', 'id=1');
-        LazyPage.runBlock(person, function() {
-          console.log('lazy-block render over');
-        });
-      });
-    </script>
   </body>
 </html>

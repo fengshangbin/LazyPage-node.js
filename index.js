@@ -8,62 +8,86 @@ var queryLazyPageSelector = require('./lib/queryLazyPage');
 var queryhelp = require('./lib/queryhelp').QueryHelp;
 
 var realHost;
+let htmlPaths = new Set();
+let map = [];
+var assets;
 
-module.exports = { filter: filter, host: host };
+module.exports = { filter: filter, host: host, route: route, response: response };
 
 function host(_realHost) {
   realHost = _realHost;
 }
 
-function filter(root) {
-  let htmlPaths = new Set();
-  let map = [];
-  let rootLen = root.length;
-  readDirSync(root);
-  function readDirSync(pathStr) {
-    var files = fs.readdirSync(pathStr);
-    files.forEach(function(ele, index) {
-      let filePath = pathNode.join(pathStr, ele);
-      let info = fs.statSync(filePath);
-      if (info.isDirectory()) {
-        if (ele != 'node_modules') readDirSync(filePath);
-      } else {
-        if (!ele.startsWith('_') && ele.endsWith('.html')) {
-          let reg = new RegExp(pathNode.sep + pathNode.sep, 'g');
-          let realPath = filePath.substring(rootLen).replace(reg, '/');
-          let routePath = realPath.replace('-.html', '');
-          routePath = routePath.replace(/\+/g, '/');
-          routePath = routePath.replace(/\$/g, '([^/]*?)');
-          if (routePath != realPath) {
-            var sort = 0;
-            for (var i = 0; i < realPath.length; i++) {
-              var str = realPath.charAt(i);
-              sort += (str == '$' ? 1 : 2) * 10 * (realPath.length - i);
-            }
-            map.push({
-              key: '^' + routePath + '$',
-              value: realPath,
-              sort: sort
-            });
-          } else {
-            htmlPaths.add(realPath);
-          }
+function route(root) {
+  clearMap();
+  if (typeof root == 'string') {
+    let rootLen = root.length;
+    readDirSync(root);
+    function readDirSync(pathStr) {
+      var files = fs.readdirSync(pathStr);
+      files.forEach(function(ele, index) {
+        let filePath = pathNode.join(pathStr, ele);
+        let info = fs.statSync(filePath);
+        if (info.isDirectory()) {
+          if (ele != 'node_modules') readDirSync(filePath);
+        } else {
+          addMap(filePath.substring(rootLen));
         }
-      }
+      });
+    }
+  } else {
+    assets = root;
+    Object.keys(assets).forEach(key => {
+      addMap(pathNode.sep + key);
     });
   }
+  sortMap();
+}
+
+function clearMap() {
+  htmlPaths = new Set();
+  map = [];
+}
+
+function sortMap() {
   map.sort(function(a, b) {
     return a.sort < b.sort ? 1 : -1;
   });
   //console.log(map);
+}
+
+function addMap(filePath) {
+  var fileName = pathNode.win32.basename(filePath);
+  if (!fileName.startsWith('_') && fileName.endsWith('.html')) {
+    let reg = new RegExp(pathNode.sep + pathNode.sep, 'g');
+    let realPath = filePath.replace(reg, '/');
+    let routePath = realPath.replace('-.html', '');
+    routePath = routePath.replace(/\+/g, '/');
+    routePath = routePath.replace(/\$/g, '([^/]*?)');
+    if (routePath != realPath) {
+      var sort = 0;
+      for (var i = 0; i < realPath.length; i++) {
+        var str = realPath.charAt(i);
+        sort += (str == '$' ? 1 : 2) * 10 * (realPath.length - i);
+      }
+      map.push({
+        key: '^' + routePath + '$',
+        value: realPath,
+        sort: sort
+      });
+    } else {
+      htmlPaths.add(realPath);
+    }
+  }
+}
+
+function response(root) {
+  //console.log('root:' + root);
   return (req, res, next) => {
     var path = parseUrl(req).pathname;
-    //console.log(path);
+    //console.log('---------------' + path);
     var cookies = req.headers.cookie;
-    //var lazyPageSpider = cookies && cookies.indexOf('LazyPageSpider=0') > -1;
-    //var lazypageajax = req.headers.lazypageajax;
     var pathParams = null;
-    //var appentScript = null;
     var ext = pathNode.extname(path);
     ext = ext.length > 0 ? ext.slice(1) : 'unknown';
     var fileName = pathNode.basename(path);
@@ -85,71 +109,74 @@ function filter(root) {
           if (reg.test(path)) {
             let group = reg.exec(path);
             path = map[i].value.substring(1);
-            //appentScript = '1';
             if (group.length > 1) {
               pathParams = group.slice(1, group.lengths);
-              //appentScript = '<script>LazyPage.pathParams=["' + pathParams.join('","') + '"];</script>\n';
             }
             hitHtml = true;
             break;
           }
         }
       }
-      //console.log(lazyPageSpider);
-      //if (appentScript || (!lazyPageSpider && hitHtml)) {
       if (hitHtml) {
         //console.log(path);
-        fs.readFile(root + '/' + path, 'utf-8', function(err, html) {
-          if (err) {
-            console.log(err);
-            next('code 404, file not found');
-          } else {
-            /* if (appentScript != null && appentScript != '1') {
-              var bodyEnd = html.lastIndexOf('</body>');
-              if (bodyEnd > 0) {
-                html = html.substring(0, bodyEnd) + appentScript + html.substring(bodyEnd);
-              } else {
-                html += '\n' + appentScript;
-              }
-            } */
-            //if (!lazyPageSpider) {
-            var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-            var query = fullUrl.split('?');
-            query = query.length > 1 ? query[1] : null;
-            try {
-              new analyzeHtml().parse(realHost, fullUrl, query, html, pathParams, cookies, function(code, result) {
-                if (code == 200) {
-                  if (req.query.lazypageTargetSelector) {
-                    var block = queryLazyPageSelector(result, req.query.lazypageTargetSelector);
-                    var resultJSON = {
-                      block: block,
-                      hasTargetLazyPage: block != null
-                    };
-                    if (block) {
-                      resultJSON.title = queryhelp.querySelector(result, 'title');
-                    }
-                    result = JSON.stringify(resultJSON);
-                  }
-                  render(req, res, result);
-                } else {
-                  console.log(result);
-                  next('server error');
-                }
-              });
-            } catch (error) {
-              console.log(error);
-              next('server error');
-            }
-            /* } else {
-              render(req, res, html);
-            } */
-          }
-        });
+        if (root && typeof root == 'string') {
+          fromDir(root, path, function(html) {
+            lazypage(req, res, html, pathParams, cookies, next);
+          });
+        } else {
+          lazypage(req, res, assets[path].source(), pathParams, cookies, next);
+        }
       } else {
         next();
       }
     }
   };
+}
+
+function fromDir(root, path, callback) {
+  fs.readFile(root + '/' + path, 'utf-8', function(err, html) {
+    if (err) {
+      console.log(err);
+      next('code 404, file not found');
+    } else {
+      callback(html);
+    }
+  });
+}
+
+function lazypage(req, res, html, pathParams, cookies, next) {
+  var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+  var query = fullUrl.split('?');
+  query = query.length > 1 ? query[1] : null;
+  try {
+    new analyzeHtml().parse(realHost, fullUrl, query, html, pathParams, cookies, function(code, result) {
+      if (code == 200) {
+        if (req.query.lazypageTargetSelector) {
+          var block = queryLazyPageSelector(result, req.query.lazypageTargetSelector);
+          var resultJSON = {
+            block: block,
+            hasTargetLazyPage: block != null
+          };
+          if (block) {
+            resultJSON.title = queryhelp.querySelector(result, 'title');
+          }
+          result = JSON.stringify(resultJSON);
+        }
+        render(req, res, result);
+      } else {
+        console.log(result);
+        next('server error');
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    next('server error');
+  }
+}
+
+function filter(root) {
+  route(root);
+  return response(root);
 }
 
 function render(req, res, doc) {
