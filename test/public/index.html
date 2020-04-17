@@ -3,38 +3,73 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0" />
-    <script type="x-tmpl-lazypage" source="cgi/title.json">
-      <title><%=name%></title>
-    </script>
+    <title>name</title>
+    <script src="lib2/template-web.js"></script>
+    <script src="lib2/element.js"></script>
+    <script src="lib2/fastdom.js"></script>
+    <script src="lib2/queryhelp.js"></script>
+    <script src="lib2/analyzeHtml.js"></script>
   </head>
 
   <body>
-    你好1
-    <script type="x-tmpl-lazypage" source="cgi/list.json" id="block1">
-      <p>date: <%=format.dataFormat("dd-MM-yyyy hh:mm:ss TT", 1550487329)%>, number: <%=format.toThousands(123456789.123)%></p>
-      <p>class name script: <%=team%></p>
-      <%for(var i=0; i<members.length; i++){%>
-      	<p>member id: <%=members[i]%></p>
-      	<%if(i==0){%>
-      		<jscript type="x-tmpl-lazypage" source="cgi/person.json" ajax-data="id=<%=members[i]%>">
-      			<p>Hello1, my name is <&=name&>. I'm years old.</p>
-      		</jscript>
-      	<%}%>
+    <div>
+      <ul>
+        <li>
+          <a href="#">1</a>
+        </li>
+        <li>
+          <a href="#" class="b d e f" id="c" custom="a b [href]">2</a>
+        </li>
+      </ul>
+      <div>1</div>
+    </div>
+    <block source="{'name':'Krasimir\' Tsonev', 'profile':{'age':2}, 'class2':'t1'}" id="b1" :class="$imports.query('a')">
+      <div :class="class2" :name="name">{{ name }}</div>
+      <%if(profile.age>1){%>
+      <span>{{ profile.age }}</span>
       <%}%>
-    </script>
-    <script type="x-tmpl-lazypage" source="cgi/person.json">
-      <p>Hello2, my name is <%=name%>. I'm <%=profile.age%> years old.</p>
-    </script>
-    <script type="x-tmpl-lazypage" source="cgi/person.json" wait="block1" ajax-data="id={@block1.team}">
-      <p>Hello3, my name is <%=name%>. I'm <%=profile.age%> years old.<%={@block1.team}%>.</p>
-    </script>
-    <script type="x-tmpl-lazypage" source="cgi/person.json">
-      <%var temp=[3,2,1];%>
-      <p>Hello4, my name is <%=name%>. I'm <%=profile.age%> years old.</p>
-      <%for(var i=0; i<temp.length; i++){%>
-      	<%=i%>: <%=temp[i]%><br/>
+      <block source="{'name':'Krasimir Tsonev2','profile':{'age':1}, 'class1':'t2'}">
+        <div :class="class1" :id="$imports.query('a')">{{ name }}-{{ $imports.query("a") }}-{{ $imports.path(0) }}-{{ $imports.data("b1").class2 }}</div>
+        <%if(profile.age>1){%>
+        <span>{{ profile.age }}</span>
+        <%}%>
+      </block>
+    </block>
+    <block source="{'name':'Krasimir Tsonev2','profile':{'age':1}, 'class1':'t2'}" wait="b1">
+      <div :class="class1" :id="$imports.query('a')">{{ name }}-{{ $imports.query("a") }}-{{ $imports.path(0) }}-{{ $imports.data("b1").class2 }}</div>
+      <%if(profile.age>1){%>
+      <span>{{ profile.age }}</span>
       <%}%>
+    </block>
+    <script>
+      //template.defaults.escape = false;
+      /* template.defaults.rules.push({
+        test: /\${([\w\W]*?)}/,
+        use: function(match, code) {
+          return {
+            code: code,
+            output: 'escape'
+          };
+        }
+      }); */
+      /* template.defaults.rules.push({
+        ///<.*? +(:[\w]*?="(.*?)")>/g
+        test: /:[\w]*?="(.*?)"/g,
+        use: function(match, code) {
+          var key = /:([\w]*?)=/g.exec(match)[1];
+          console.log(match, key, code);
+          return {
+            code: key + '="' + code + '"',
+            output: 'raw'
+          };
+        }
+      }); */
+      /* var dom = new fastdom(document.body.outerHTML);
+      var el1 = dom.querySelector('li a');
+      var el2 = dom.querySelector('div li a#c.b[custom].d.e.f:not([custom=c])');
+      var el3 = dom.querySelector('div'); //All
+      console.log(el1.toJSON(), el2.toJSON(), el3.querySelector('li a').toJSON()); */
+      new analyzeHtml().parse(null, location.origin+location.pathname, location.search.substr(1), document.body.innerHTML);
     </script>
-    <script type="x-tmpl-lazypage" source="{'name':'Krasimir Tsonev','profile':{'age':2}}" src="include/_body.html?v=haha"></script>
   </body>
 </html>

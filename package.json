@@ -11,6 +11,7 @@
     "type": "git",
     "url": "https://github.com/fengshangbin/LazyPage-node.js"
   },
+  "homepage": "https://www.fengshangbin.com",
   "keywords": [
     "LazyPage",
     "node.js"

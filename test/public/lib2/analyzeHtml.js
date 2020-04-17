@@ -1,6 +1,6 @@
-var document = require('./document');
+/* var fastdom = require('./fastdom');
 var ajax = require('./httpProxy');
-var baidu = require('./baiduTemplate');
+var template = require('./template-web'); */
 
 //eval("console.log(LazyPage.data)");
 var analyzeHtml = function() {
@@ -16,12 +16,13 @@ var analyzeHtml = function() {
 
   this.parse = function(realHost, path, _query, html, _pathParams, _cookies, _callback) {
     //console.log("path", path);
-    doc = new document(html);
+    doc = new fastdom(html);
     rootPath = getRootPath(path);
     var regex = '(' + rootPath + '/?)';
     if (realHost) rootPath = realHost;
     var pattern = new RegExp(regex, 'g');
     path = path.replace(pattern, '');
+    var pathnames = path.split('/');
     if (path.endsWith('/')) path += 'end';
     paths = path.split('/');
     paths.pop();
@@ -30,7 +31,23 @@ var analyzeHtml = function() {
     pathParams = _pathParams;
     cookies = _cookies;
     callback = _callback;
-    checkBlocks();
+
+    template.defaults.imports.path = function(index){
+      return pathnames[index];
+    };
+    template.defaults.imports.query = function(key){
+      if (query == null) return null;
+      var regStr = '(^|&)' + key + '=([^&]*)(&|$)';
+      var reg = new RegExp(regStr, 'i');
+      var r = query.match(reg);
+      if (r != null) return r[2];
+      return null;
+    };
+    template.defaults.imports.data = function(key){
+      return dataMap[key];
+    };
+
+    parseBlock();
   };
   function getRootPath(path) {
     var regex = '^((https|http|ftp|rtsp|mms)?://[^/]*)';
@@ -41,6 +58,73 @@ var analyzeHtml = function() {
     }
     return null;
   }
+  function parseBlock() {
+    var block = doc.querySelector('block:not([wait])');
+    if (block != null) {
+      var attrHTML = block.getAttrHTML();
+      attrHTML = attrHTML.replace(/:([\w]*?) *= *"(.*?)"/g, function(match, p1, p2, offset) {
+        return p1 + '="{{' + p2 + '}}"';
+      });
+      attrHTML = attrHTML.replace(/\\'/, '&#39;');
+      attrHTML = template.render(attrHTML);
+      block.setAttrHTML(attrHTML);
+      var data = block.getAttribute('source').replace(/'/g, '"');
+      //console.log(data);
+      data = JSON.parse(data);
+
+      var blockChildren = {};
+      var blockChild = block.querySelector('block:not([mark])');
+      if(blockChild){
+        var innerHTML = blockChild.getInnerHTML();
+        var key = Date.now();
+        //console.log(key, innerHTML);
+        blockChildren[key] = innerHTML;
+        blockChild.setInnerHTML(key);
+        blockChild.setAttribute("mark","true");
+        blockChild = block.querySelector('block:not([mark])');
+        //console.log(blockChild.getInnerHTML());
+        //console.log(block.getInnerHTML());
+        //doc.debug();
+        //return;
+      }
+      var html = block.getInnerHTML();
+      html = html.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+      html = html.replace(/<.*? +:[\w]*? *= *".*?" *.*?>/g, function(match, offset) {
+        return match.replace(/:([\w]*?) *= *"(.*?)"/g, function(match, p1, p2, offset) {
+          return p1 + '="{{' + p2 + '}}"';
+        });
+      });
+      //console.log(html);
+      //console.log(JSON.stringify(data));
+      var result = template.render(html, data);
+      for(var key in blockChildren){
+        result = result.replace(key, blockChildren[key]);
+      }
+      //console.log(result);
+      block.setOuterHTML(result);
+
+      var id = block.getAttribute('id');
+      if (id != null) {
+        dataMap[id] = data;
+        var waitBlocks = doc.querySelectorAll('block[wait=' + id + ']');
+        waitBlocks.forEach(item => {
+          var waitAttr = item.getAttribute('wait');
+          var regex = id + ' ?';
+          var pattern = new RegExp(regex, 'g');
+          waitAttr = waitAttr.replace(pattern, '');
+          waitAttr = waitAttr.trim();
+          if (waitAttr == '') waitAttr = null;
+          item.setAttribute('wait', waitAttr);
+        });
+      }
+      parseBlock();
+      //console.log(doc.html);
+    } else {
+      //callback();
+      console.log(doc.html.replace(/\n( *\n)+/g,"\n"));
+    }
+  }
+
   function checkBlocks() {
     var blocks = doc.queryBlocks();
     var lazyCount = 0;
@@ -163,7 +247,7 @@ var analyzeHtml = function() {
   function getQueryString(name) {
     if (query == null) return '';
     var regStr = '(^|&)' + name + '=([^&]*)(&|$)';
-    var reg = new RegExp(regStr, 'i');
+    var reg = new RegExp(reg, 'i');
     var r = query.match(reg);
     if (r != null) return r[2];
     return '';
@@ -244,4 +328,5 @@ var analyzeHtml = function() {
     }
   }
 };
-module.exports = analyzeHtml;
+
+//module.exports = analyzeHtml;
