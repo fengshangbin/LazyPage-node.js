@@ -1,18 +1,23 @@
-'use strict';
+"use strict";
 
-var parseUrl = require('parseurl');
-var fs = require('fs');
-var pathNode = require('path');
-var analyzeHtml = require('./lib/analyzeHtml');
-var queryLazyPageSelector = require('./lib/queryLazyPage');
-var queryhelp = require('./lib/queryhelp').QueryHelp;
+var parseUrl = require("parseurl");
+var fs = require("fs");
+var pathNode = require("path");
+var analyzeHtml = require("./lib2/analyzeHtml");
+var queryLazyPageSelector = require("./lib/queryLazyPage");
+var queryhelp = require("./lib/queryhelp").QueryHelp;
 
 var realHost;
 let htmlPaths = new Set();
 let map = [];
 var assets;
 
-module.exports = { filter: filter, host: host, route: route, response: response };
+module.exports = {
+  filter: filter,
+  host: host,
+  route: route,
+  response: response,
+};
 
 function host(_realHost) {
   realHost = _realHost;
@@ -20,16 +25,16 @@ function host(_realHost) {
 
 function route(root) {
   clearMap();
-  if (typeof root == 'string') {
+  if (typeof root == "string") {
     let rootLen = root.length;
     readDirSync(root);
     function readDirSync(pathStr) {
       var files = fs.readdirSync(pathStr);
-      files.forEach(function(ele, index) {
+      files.forEach(function (ele, index) {
         let filePath = pathNode.join(pathStr, ele);
         let info = fs.statSync(filePath);
         if (info.isDirectory()) {
-          if (ele != 'node_modules') readDirSync(filePath);
+          if (ele != "node_modules") readDirSync(filePath);
         } else {
           addMap(filePath.substring(rootLen));
         }
@@ -37,7 +42,7 @@ function route(root) {
     }
   } else {
     assets = root;
-    Object.keys(assets).forEach(key => {
+    Object.keys(assets).forEach((key) => {
       addMap(pathNode.sep + key);
     });
   }
@@ -50,7 +55,7 @@ function clearMap() {
 }
 
 function sortMap() {
-  map.sort(function(a, b) {
+  map.sort(function (a, b) {
     return a.sort < b.sort ? 1 : -1;
   });
   //console.log(map);
@@ -58,22 +63,22 @@ function sortMap() {
 
 function addMap(filePath) {
   var fileName = pathNode.win32.basename(filePath);
-  if (!fileName.startsWith('_') && fileName.endsWith('.html')) {
-    let reg = new RegExp(pathNode.sep + pathNode.sep, 'g');
-    let realPath = filePath.replace(reg, '/');
-    let routePath = realPath.replace('-.html', '');
-    routePath = routePath.replace(/\+/g, '/');
-    routePath = routePath.replace(/\$/g, '([^/]*?)');
+  if (!fileName.startsWith("_") && fileName.endsWith(".html")) {
+    let reg = new RegExp(pathNode.sep + pathNode.sep, "g");
+    let realPath = filePath.replace(reg, "/");
+    let routePath = realPath.replace("-.html", "");
+    routePath = routePath.replace(/\+/g, "/");
+    routePath = routePath.replace(/\$/g, "([^/]*?)");
     if (routePath != realPath) {
       var sort = 0;
       for (var i = 0; i < realPath.length; i++) {
         var str = realPath.charAt(i);
-        sort += (str == '$' ? 1 : 2) * 10 * (realPath.length - i);
+        sort += (str == "$" ? 1 : 2) * 10 * (realPath.length - i);
       }
       map.push({
-        key: '^' + routePath + '$',
+        key: "^" + routePath + "$",
         value: realPath,
-        sort: sort
+        sort: sort,
       });
     } else {
       htmlPaths.add(realPath);
@@ -89,23 +94,23 @@ function response(root) {
     var cookies = req.headers.cookie;
     var pathParams = null;
     var ext = pathNode.extname(path);
-    ext = ext.length > 0 ? ext.slice(1) : 'unknown';
+    ext = ext.length > 0 ? ext.slice(1) : "unknown";
     var fileName = pathNode.basename(path);
     var hitHtml = false;
-    if (ext != 'unknown' && ext != 'html') {
+    if (ext != "unknown" && ext != "html") {
       next();
-    } else if (fileName.startsWith('_') && ext == 'html') {
+    } else if (fileName.startsWith("_") && ext == "html") {
       next();
     } else {
       if (htmlPaths.has(path)) {
         hitHtml = true;
-      } else if (path.endsWith('/') && htmlPaths.has(path + 'index.html')) {
+      } else if (path.endsWith("/") && htmlPaths.has(path + "index.html")) {
         hitHtml = true;
-        path = path + 'index.html';
+        path = path + "index.html";
       } else {
         for (var i = 0; i < map.length; i++) {
           var key = map[i].key;
-          let reg = new RegExp(key, 'i');
+          let reg = new RegExp(key, "i");
           if (reg.test(path)) {
             let group = reg.exec(path);
             path = map[i].value.substring(1);
@@ -119,8 +124,8 @@ function response(root) {
       }
       if (hitHtml) {
         //console.log(path);
-        if (root && typeof root == 'string') {
-          fromDir(root, path, function(html) {
+        if (root && typeof root == "string") {
+          fromDir(root, path, function (html) {
             lazypage(req, res, html, pathParams, cookies, next);
           });
         } else {
@@ -134,10 +139,10 @@ function response(root) {
 }
 
 function fromDir(root, path, callback) {
-  fs.readFile(root + '/' + path, 'utf-8', function(err, html) {
+  fs.readFile(root + "/" + path, "utf-8", function (err, html) {
     if (err) {
       console.log(err);
-      next('code 404, file not found');
+      next("code 404, file not found");
     } else {
       callback(html);
     }
@@ -145,32 +150,39 @@ function fromDir(root, path, callback) {
 }
 
 function lazypage(req, res, html, pathParams, cookies, next) {
-  var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-  var query = fullUrl.split('?');
+  var fullUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
+  var query = fullUrl.split("?");
   query = query.length > 1 ? query[1] : null;
   try {
-    new analyzeHtml().parse(realHost, fullUrl, query, html, pathParams, cookies, function(code, result) {
+    new analyzeHtml().parse(realHost, fullUrl, query, html, cookies, function (
+      code,
+      result
+    ) {
+      //, pathParams
       if (code == 200) {
         if (req.query.lazypageTargetSelector) {
-          var block = queryLazyPageSelector(result, req.query.lazypageTargetSelector);
+          var block = queryLazyPageSelector(
+            result,
+            req.query.lazypageTargetSelector
+          );
           var resultJSON = {
             block: block,
-            hasTargetLazyPage: block != null
+            hasTargetLazyPage: block != null,
           };
           if (block) {
-            resultJSON.title = queryhelp.querySelector(result, 'title');
+            resultJSON.title = queryhelp.querySelector(result, "title");
           }
           result = JSON.stringify(resultJSON);
         }
         render(req, res, result);
       } else {
         console.log(result);
-        next('server error');
+        next("server error");
       }
     });
   } catch (error) {
     console.log(error);
-    next('server error');
+    next("server error");
   }
 }
 
@@ -181,7 +193,7 @@ function filter(root) {
 
 function render(req, res, doc) {
   res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-  res.setHeader('Content-Length', Buffer.byteLength(doc));
+  res.setHeader("Content-Type", "text/html; charset=UTF-8");
+  res.setHeader("Content-Length", Buffer.byteLength(doc));
   res.end(doc);
 }

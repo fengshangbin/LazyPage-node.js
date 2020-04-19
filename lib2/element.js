@@ -15,6 +15,9 @@ var element = function (dom, start, end, html, attrLen, closeLen) {
   this.getStart = function () {
     return start;
   };
+  this.getEnd = function () {
+    return end;
+  };
   this.getAttrLen = function () {
     return attrLen;
   };
@@ -111,11 +114,11 @@ var element = function (dom, start, end, html, attrLen, closeLen) {
     }
   };
   this.querySelector = function (regStr) {
-    return querySelectorElement(this, regStr, false);
+    return dom.querySelector(regStr, this);
   };
   this.querySelectorAll = function (regStr) {
-    return querySelectorElement(this, regStr, true);
+    return dom.querySelectorAll(regStr, this);
   };
 };
 
-//module.exports = element;
+module.exports = element;

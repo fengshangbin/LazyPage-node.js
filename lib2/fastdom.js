@@ -1,4 +1,12 @@
-//var element = require('./element');
+var queryhelp = require("./queryhelp");
+var element = require("./element");
+
+//console.log(queryhelp, element);
+
+var querySelectorElement = queryhelp.querySelectorElement;
+var getElementByAttr = queryhelp.getElementByAttr;
+var queryElement = queryhelp.queryElement;
+var buildClassReg = queryhelp.buildClassReg;
 
 var fastdom = function (html) {
   var dom = this;
@@ -35,11 +43,11 @@ var fastdom = function (html) {
     }
   };
 
-  this.querySelector = function (regStr) {
-    return querySelectorElement(this, regStr, false);
+  this.querySelector = function (regStr, element) {
+    return querySelectorElement(element ? element : this, regStr, false);
   };
-  this.querySelectorAll = function (regStr) {
-    return querySelectorElement(this, regStr, true);
+  this.querySelectorAll = function (regStr, element) {
+    return querySelectorElement(element ? element : this, regStr, true);
   };
   this.getElementById = function (id) {
     return getElementByAttr(this, "[id=" + id + "]", false);
@@ -63,4 +71,4 @@ var fastdom = function (html) {
   };
 };
 
-//module.exports = fastdom;
+module.exports = fastdom;
