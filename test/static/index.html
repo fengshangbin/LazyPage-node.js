@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0"
+    />
+    <title>首页</title>
+  </head>
+
+  <body>
+    <block src="/include/_head.html"></block>
+    <hr>
+    <block source="{'name':'zhangsan', 'age':19, 'color': 'green'}">
+        <div :style="'color:'+color" :data-class="color">{{ name }}</div>
+        <%if(age%2==1){%>
+            <span>{{ age }}</span>
+        <%}%>
+    </block>
+    <hr>
+    html template
+    <pre>
+        <code>
+            &lt;block source=&quot;{&#39;name&#39;:&#39;zhangsan&#39;, &#39;age&#39;:19, &#39;color&#39;: &#39;green&#39;}&quot;&gt;
+                &lt;div :style=&quot;&#39;color:&#39;+color&quot;&gt;{{ name }}&lt;/div&gt;
+                &lt;%if(age%2==1){%&gt;
+                    &lt;span&gt;{{ age }}&lt;/span&gt;
+                &lt;%}%&gt;
+            &lt;/block&gt;
+        </code>
+    </pre>  
+  </body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0"
+    />
+    <title>加载外部数据</title>
+  </head>
+  <body>
+    <block src="/include/_head.html"></block>
+    <hr>
+    <block source="/cgi/person.json">
+        <div :style="'color:'+color">{{ name }}</div>
+        <%if(age%2==1){%>
+            <span>{{ age }}</span>
+        <%}%>
+    </block>
+    <hr>
+    html template
+    <pre>
+        <code>
+            &lt;block source=&quot;/cgi/person.json&quot;&gt;
+                &lt;div :style=&quot;&#39;color:&#39;+color&quot;&gt;{{ name }}&lt;/div&gt;
+                &lt;%if(age%2==1){%&gt;
+                    &lt;span&gt;{{ age }}&lt;/span&gt;
+                &lt;%}%&gt;
+            &lt;/block&gt;
+        </code>
+    </pre>  
+    person.json
+    <pre>
+        <code>
+            {
+                &quot;name&quot;: &quot;zhangsan&quot;,
+                &quot;age&quot;: 19,
+                &quot;color&quot;: &quot;green&quot;
+            }
+        </code>
+    </pre> 
+  </body>
+</html>
+

@@ -1,0 +1,28 @@
+<style>
+    a{
+        color: #000;
+    }
+    a.active{
+        color: red;
+        text-decoration: none;
+    }
+    pre {
+        background: #272822;
+        overflow: auto;
+        border-radius: 0.3em;
+    }
+    code{
+        color: #e8eaf6;
+    }
+</style>
+<div>
+    <a href="/" :class=" $path(0)=='' ? 'active' : '' ">首页</a>
+    <a href="/loadsource" :class=" $path(0)=='loadsource' ? 'active' : '' ">加载外部数据</a>
+    <a href="/loadtemplete" :class=" $path(0)=='loadtemplete' ? 'active' : '' ">加载外部模板</a>
+    <a href="/multiblock" :class=" $path(0)=='multiblock' ? 'active' : '' ">嵌套模板</a>
+    <a href="/waitblock" :class=" $path(0)=='waitblock' ? 'active' : '' ">数据依赖模板</a>
+    <a :href="'/requestpath/'+Date.now()" :class=" $path(0)=='requestpath' ? 'active' : '' ">获取URL路径</a>
+    <a :href="'/requestquery?a='+Math.random()" :class=" $path(0)=='requestquery' ? 'active' : '' ">获取URL参数</a>
+    <a href="/definevariable" :class=" $path(0)=='definevariable' ? 'active' : '' ">全局变量</a>
+    <a href="/definemethod" :class=" $path(0)=='definemethod' ? 'active' : '' ">全局函数</a>
+</div>

@@ -3,24 +3,62 @@
 var parseUrl = require("parseurl");
 var fs = require("fs");
 var pathNode = require("path");
+var template = require("./lib2/template-web");
 var analyzeHtml = require("./lib2/analyzeHtml");
 var queryLazyPageSelector = require("./lib/queryLazyPage");
 var queryhelp = require("./lib/queryhelp").QueryHelp;
 
-var realHost;
+var mapping;
 let htmlPaths = new Set();
 let map = [];
 var assets;
 
 module.exports = {
   filter: filter,
-  host: host,
+  //host: host,
   route: route,
   response: response,
+  loadconfig: loadconfig
+  //loadjs: loadjs
 };
 
-function host(_realHost) {
+/* function host(_realHost) {
   realHost = _realHost;
+} */
+function loadjs(code, alias){
+  template.defaults.imports.$import[alias] = code;
+}
+
+function loadconfig(root){
+  try{
+    var data=fs.readFileSync(root + "/config.json", 'utf-8');
+    try{
+      let config = JSON.parse(data);
+      if(config.mapping && config.mapping.length>0){
+        mapping = config.mapping;
+      }
+      if(config.import){
+        template.defaults.imports.$import = {};
+        for(var key in config.import){
+          let path = config.import[key];
+          try{
+            var code=fs.readFileSync(root+"/"+path, 'utf-8');
+            loadjs(eval(code), key);
+            /* loadjs(require(__dirname+"/"+root+"/"+js.path), js.alias); */
+          }catch(e){
+            console.log("error js: "+path, e);
+          }
+        }
+      }
+      if(config.config){
+        var set ={};
+        Object.assign(set, config.config);
+        template.defaults.imports.$config = set;
+      }
+    }catch(e){
+      console.error("config.json need json format!");
+    }
+  }catch(e){}
 }
 
 function route(root) {
@@ -62,6 +100,7 @@ function sortMap() {
 }
 
 function addMap(filePath) {
+  //console.log(filePah)
   var fileName = pathNode.win32.basename(filePath);
   if (!fileName.startsWith("_") && fileName.endsWith(".html")) {
     let reg = new RegExp(pathNode.sep + pathNode.sep, "g");
@@ -151,10 +190,11 @@ function fromDir(root, path, callback) {
 
 function lazypage(req, res, html, pathParams, cookies, next) {
   var fullUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
-  var query = fullUrl.split("?");
-  query = query.length > 1 ? query[1] : null;
+  var urls = fullUrl.split("?");
+  //query = query.length > 1 ? query[1] : null;
   try {
-    new analyzeHtml().parse(realHost, fullUrl, query, html, cookies, function (
+    //console.log(mapping, urls[0], urls[1]);
+    new analyzeHtml().parse(mapping, urls[0], urls[1], html, cookies, function (
       code,
       result
     ) {
@@ -187,6 +227,7 @@ function lazypage(req, res, html, pathParams, cookies, next) {
 }
 
 function filter(root) {
+  loadconfig(root);
   route(root);
   return response(root);
 }

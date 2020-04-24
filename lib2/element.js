@@ -28,6 +28,7 @@ var element = function (dom, start, end, html, attrLen, closeLen) {
     return html.substring(attrLen, html.length - closeLen);
   };
   this.setInnerHTML = function (innerhtml) {
+    if(innerhtml==null)innerhtml="";
     innerhtml = innerhtml.toString();
     html =
       html.substring(0, attrLen) +

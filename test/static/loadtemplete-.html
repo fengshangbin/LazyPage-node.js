@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0"
+    />
+    <title>加载外部模板</title>
+  </head>
+  <body>
+    <block src="/include/_head.html"></block>
+    <hr>
+    <block
+        source="{'name':'lisi', 'age':20, 'color': 'red'}"
+        src="/include/_loadtemplete.html">
+    </block>
+    <hr>
+    html template
+    <pre>
+        <code>
+            &lt;block
+                source=&quot;{&#39;name&#39;:&#39;lisi&#39;, &#39;age&#39;:20, &#39;color&#39;: &#39;red&#39;}&quot;
+                src=&quot;/include/_loadtemplete.html&quot;&gt;
+            &lt;/block&gt;
+        </code>
+    </pre>  
+    _loadtemplete.html
+    <pre>
+        <code>
+            &lt;div :style=&quot;&#39;color:&#39;+color&quot;&gt;{{ name }}&lt;/div&gt;
+            &lt;%if(age%2==1){%&gt;
+                &lt;span&gt;{{ age }}&lt;/span&gt;
+            &lt;%}%&gt;
+        </code>
+    </pre> 
+  </body>
+</html>
+

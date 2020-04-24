@@ -60,6 +60,7 @@ function getRootPath(path) {
   return null;
 }
 function ajax(
+  mapping,
   rootPath,
   paths,
   method,
@@ -72,6 +73,12 @@ function ajax(
   if (method == null) method = "GET";
   method = method.toUpperCase();
   urlString = getRealUrl(rootPath, paths, urlString);
+  if(mapping){
+    for(var i=0; i<mapping.length; i++){
+      var map = mapping[i];
+      urlString = urlString.replace(map.from, map.to);
+    }
+  }
   var options = {
     timeout: 15000,
     method: method,

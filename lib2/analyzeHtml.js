@@ -1,10 +1,12 @@
 var fastdom = require("./fastdom");
 var ajax = require("./httpProxy");
 var template = require("./template-web");
+require("./template-global");
 
 var analyzeHtml = function () {
   var dataMap = {};
   var doc;
+  var mapping;
   var rootPath;
   var paths;
   var query;
@@ -15,7 +17,7 @@ var analyzeHtml = function () {
   var blockMarkIndex = 0;
 
   this.parse = function (
-    realHost,
+    _mapping,
     path,
     _query,
     html,
@@ -25,9 +27,10 @@ var analyzeHtml = function () {
   ) {
     //console.log("path", path);
     doc = new fastdom(html);
+    mapping = _mapping;
     rootPath = getRootPath(path);
     var regex = "(" + rootPath + "/?)";
-    if (realHost) rootPath = realHost;
+    //if (realHost) rootPath = realHost;
     var pattern = new RegExp(regex, "g");
     path = path.replace(pattern, "");
     var pathnames = path.split("/");
@@ -40,10 +43,10 @@ var analyzeHtml = function () {
     cookies = _cookies;
     callback = _callback;
 
-    template.defaults.imports.path = function (index) {
+    template.defaults.imports.$path = function (index) {
       return pathnames[index];
     };
-    template.defaults.imports.query = function (key) {
+    template.defaults.imports.$query = function (key) {
       if (query == null) return null;
       var regStr = "(^|&)" + key + "=([^&]*)(&|$)";
       var reg = new RegExp(regStr, "i");
@@ -51,10 +54,10 @@ var analyzeHtml = function () {
       if (r != null) return r[2];
       return null;
     };
-    template.defaults.imports.data = function (key) {
+    /* template.defaults.imports.$block = function (key) {
       return dataMap[key];
-    };
-
+    }; */
+    template.defaults.imports.$block = dataMap;
     parseBlock();
   };
   function getRootPath(path) {
@@ -70,7 +73,7 @@ var analyzeHtml = function () {
     var block = doc.querySelector("block:not([wait])");
     if (block != null) {
       var attrHTML = block.getAttrHTML();
-      attrHTML = attrHTML.replace(/:([\w]*?) *= *"(.*?)"/g, function (
+      attrHTML = attrHTML.replace(/:([\w-_]*?) *= *"(.*?)"/g, function (
         match,
         p1,
         p2,
@@ -85,12 +88,12 @@ var analyzeHtml = function () {
       let matchJson = /(^\{(.*?)\}$)|(^\[(.*?)\]$)/;
       if (source != null && source != "") {
         if (matchJson.test(source)) {
-          source = source.replace(/\\'/g, "&#39;").replace(/'/g, '"');
+          source = source.replace(/\\'/g, "&#39;").replace(/'/g, '"').replace(/&#39;/g, "'");
           block.source = JSON.parse(source);
         } else {
           let ajaxType = block.getAttribute("rquest-type");
           let ajaxData = block.getAttribute("rquest-param");
-          ajax(rootPath, paths, ajaxType, source, ajaxData, cookies, function (
+          ajax(mapping, rootPath, paths, ajaxType, source, ajaxData, cookies, function (
             result
           ) {
             block.source = JSON.parse(result);
@@ -103,7 +106,7 @@ var analyzeHtml = function () {
 
       var src = block.getAttribute("src");
       if (src != null && src != "") {
-        ajax(rootPath, paths, null, src, null, cookies, function (result) {
+        ajax(mapping, rootPath, paths, null, src, null, cookies, function (result) {
           block.hasHTML = true;
           block.setInnerHTML(result);
           renderDom(block);
@@ -136,11 +139,11 @@ var analyzeHtml = function () {
         }
         var html = block.getInnerHTML();
         //html = html.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-        html = html.replace(/<.*? +:[\w]*? *= *".*?" *.*?>/g, function (
+        html = html.replace(/<.*? +:[\w-_]*? *= *".*?" *.*?>/g, function (
           match,
           offset
         ) {
-          return match.replace(/:([\w]*?) *= *"(.*?)"/g, function (
+          return match.replace(/:([\w-_]*?) *= *"(.*?)"/g, function (
             match,
             p1,
             p2,
@@ -150,12 +153,6 @@ var analyzeHtml = function () {
           });
         });
 
-        var result = template.render(html, source);
-        for (var key in blockChildren) {
-          result = result.replace(key, blockChildren[key]);
-        }
-        //console.log(result);
-        block.setOuterHTML(result);
         var id = block.getAttribute("id");
         if (id != null) {
           dataMap[id] = source;
@@ -170,6 +167,14 @@ var analyzeHtml = function () {
             item.setAttribute("wait", waitAttr);
           });
         }
+
+        var result = template.render(html, source);
+        for (var key in blockChildren) {
+          result = result.replace(key, blockChildren[key]);
+        }
+        //console.log(result);
+        block.setOuterHTML(result);
+        
         parseBlock();
       }
     } catch (error) {
