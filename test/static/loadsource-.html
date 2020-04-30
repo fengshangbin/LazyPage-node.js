@@ -11,7 +11,7 @@
   <body>
     <block src="/include/_head.html"></block>
     <hr>
-    <block source="/cgi/person.json">
+    <block source="/cgi/person.json" rquest-param="id=2&type=1">
         <div :style="'color:'+color">{{ name }}</div>
         <%if(age%2==1){%>
             <span>{{ age }}</span>
@@ -21,7 +21,7 @@
     html template
     <pre>
         <code>
-            &lt;block source=&quot;/cgi/person.json&quot;&gt;
+            &lt;block source=&quot;/cgi/person.json&quot; rquest-param=&quot;id=2&amp;type=1&quot;&gt;
                 &lt;div :style=&quot;&#39;color:&#39;+color&quot;&gt;{{ name }}&lt;/div&gt;
                 &lt;%if(age%2==1){%&gt;
                     &lt;span&gt;{{ age }}&lt;/span&gt;
