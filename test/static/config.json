@@ -1,16 +1,7 @@
 {
   "config": {
-    "api": "http://192.168.1.1"
+    "api": "http://192.168.1.1",
+    "root": ""
   },
-  "import": ["js/format.js"],
-  "mapping": [
-    {
-      "from": "http://localhost:8081",
-      "to": "http://10.0.0.227:8081"
-    },
-    {
-      "from": "http://www.domain.com",
-      "to": "http://192.168.1.100:8082"
-    }
-  ]
+  "import": ["js/format.js"]
 }

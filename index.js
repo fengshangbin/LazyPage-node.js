@@ -7,7 +7,8 @@ var template = require("./lib/template-web");
 var analyzeHtml = require("./lib/analyzeHtml");
 var queryLazyPageSelector = require("./lib/queryLazyPage");
 
-var mapping;
+var mapping,
+  ignorePath = "";
 let htmlPaths = new Set();
 let map = [];
 var assets;
@@ -64,6 +65,12 @@ function loadconfig(root) {
         var set = {};
         Object.assign(set, config.config);
         template.defaults.imports.$config = set;
+      }
+      if (config.ignorePath) {
+        ignorePath = config.ignorePath;
+        if (ignorePath.startsWith("/")) ignorePath = ignorePath.substring(1);
+        if (ignorePath.endsWith("/"))
+          ignorePath = ignorePath.substring(0, ignorePath.length - 1);
       }
     } catch (e) {
       console.error("config.json need json format!");
@@ -204,42 +211,47 @@ function lazypage(req, res, html, pathParams, cookies, next) {
   //query = query.length > 1 ? query[1] : null;
   try {
     //console.log(mapping, urls[0], urls[1]);
-    new analyzeHtml().parse(mapping, urls[0], urls[1], html, cookies, function (
-      code,
-      result
-    ) {
-      //, pathParams
-      if (code == 200) {
-        if (req.query.lazypageTargetSelector) {
-          var block = queryLazyPageSelector(
-            result,
-            req.query.lazypageTargetSelector
-          );
-          var resultJSON = {
-            block:
-              block != null
-                ? block
-                    .getOuterHTML()
-                    .replace(/ lazypagelevel\d/g, "")
-                    .replace(/(\r|\n)( *(\r|\n))+/g, "\r")
-                : null,
-            hasTargetLazyPage: block != null,
-          };
-          if (block) {
-            resultJSON.title = result.querySelector("title").getInnerHTML();
-          } /*  else {
+    new analyzeHtml().parse(
+      mapping,
+      ignorePath,
+      urls[0],
+      urls[1],
+      html,
+      cookies,
+      function (code, result) {
+        //, pathParams
+        if (code == 200) {
+          if (req.query.lazypageTargetSelector) {
+            var block = queryLazyPageSelector(
+              result,
+              req.query.lazypageTargetSelector
+            );
+            var resultJSON = {
+              block:
+                block != null
+                  ? block
+                      .getOuterHTML()
+                      .replace(/ lazypagelevel\d/g, "")
+                      .replace(/(\r|\n)( *(\r|\n))+/g, "\r")
+                  : null,
+              hasTargetLazyPage: block != null,
+            };
+            if (block) {
+              resultJSON.title = result.querySelector("title").getInnerHTML();
+            } /*  else {
             console.log(urls[0], req.query.lazypageTargetSelector);
           } */
-          result = JSON.stringify(resultJSON);
+            result = JSON.stringify(resultJSON);
+          } else {
+            result = result.html.replace(/(\r|\n)( *(\r|\n))+/g, "\r");
+          }
+          render(req, res, result);
         } else {
-          result = result.html.replace(/(\r|\n)( *(\r|\n))+/g, "\r");
+          console.log(result);
+          next("server error");
         }
-        render(req, res, result);
-      } else {
-        console.log(result);
-        next("server error");
       }
-    });
+    );
   } catch (error) {
     console.log(error);
     next("server error");

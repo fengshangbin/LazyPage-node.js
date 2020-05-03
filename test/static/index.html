@@ -11,14 +11,14 @@
 
   <body>
     <block src="/include/_head.html"></block>
-    <hr>
+    <hr />
     <block source="{'name':'zhangsan', 'age':19, 'color': 'green'}">
-        <div :style="'color:'+color" :data-class="color">{{ name }}</div>
-        <%if(age%2==1){%>
-            <span>{{ age }}</span>
-        <%}%>
+      <div :style="'color:'+color" :data-class="color">{{ name }}</div>
+      <%if(age%2==1){%>
+      <span>{{ age }}</span>
+      <%}%>
     </block>
-    <hr>
+    <hr />
     html template
     <pre>
         <code>
@@ -29,6 +29,6 @@
                 &lt;%}%&gt;
             &lt;/block&gt;
         </code>
-    </pre>  
+    </pre>
   </body>
 </html>
