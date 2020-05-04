@@ -13,6 +13,7 @@ GitHub Pages: https://github.com/fengshangbin/LazyPage-node.js
 1，导入 lazypage-node.js 到你的项目
 
 ```
+npm install --save-dev express
 npm install --save-dev lazypage-node
 ```
 
@@ -29,14 +30,6 @@ app.use(lazypage.filter('test/public'));
 app.use(express.static('test/public'));
 ```
 
-3, 如果需要全局执行的函数，注册全局函数
-
-```
-global.format = require('./public/js/format');
-```
-
-4, 如果后端访问资源路径和前端不一致（如经过 ngnix 转发），可以调用 lazypage.host(realhost)来设置后端访问资源的 host
-
 ### LazyPage-node.js 使用示例
 
 test/app.js
@@ -48,7 +41,6 @@ var app = express();
 var lazypage = require('lazypage-node');
 app.use(lazypage.filter('test/public'));
 app.use(express.static('test/public'));
-global.format = require('./public/js/format');
 
 var server = app.listen(8081, function() {
   console.log('LazyPage node.js测试，访问地址为 http://localhost:8081/');
