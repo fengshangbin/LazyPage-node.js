@@ -145,8 +145,8 @@ function addMap(filePath) {
 function response(root) {
   //console.log('root:' + root);
   return (req, res, next) => {
-    var path = parseUrl(req).pathname;
-    //console.log('---------------' + path);
+    var path = parseUrl(req).pathname.replace("//", "/");
+    //console.log("---------------" + path);
     var cookies = req.headers.cookie;
     var pathParams = null;
     var ext = pathNode.extname(path);
@@ -206,7 +206,9 @@ function fromDir(root, path, callback) {
 }
 
 function lazypage(req, res, html, pathParams, cookies, next) {
-  var fullUrl = req.protocol + "://" + req.get("host") + req.originalUrl;
+  var fullUrl =
+    req.protocol + "://" + req.get("host") + req.originalUrl.replace("//", "/");
+  //console.log(fullUrl);
   var urls = fullUrl.split("?");
   //query = query.length > 1 ? query[1] : null;
   try {
