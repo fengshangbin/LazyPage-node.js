@@ -27,6 +27,6 @@
     "through2": "^3.0.0"
   },
   "devDependencies": {
-    "express": "^4.16.4"
+    "express": "^4.17.1"
   }
 }

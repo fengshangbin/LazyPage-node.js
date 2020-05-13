@@ -9,5 +9,6 @@
       "from": "http://127.0.0.1:8081",
       "to": "http://localhost:8081"
     }
-  ]
+  ],
+  "debug": true
 }
