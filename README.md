@@ -10,7 +10,7 @@ GitHub Pages: https://github.com/fengshangbin/LazyPage-node.js
 
 # 在线测试
 
-https://www.fengshangbin.com/node/nodejs
+https://www.fengshangbin.com/node/lazypage/
 
 # 如何使用 LazyPage-node.js
 
