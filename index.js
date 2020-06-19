@@ -53,7 +53,7 @@ function loadconfig(root) {
     } catch (e) {
       console.error('config.json need json format!');
     }
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function route(root) {
@@ -63,7 +63,7 @@ function route(root) {
     readDirSync(root);
     function readDirSync(pathStr) {
       var files = fs.readdirSync(pathStr);
-      files.forEach(function(ele, index) {
+      files.forEach(function (ele, index) {
         let filePath = pathNode.join(pathStr, ele);
         let info = fs.statSync(filePath);
         if (info.isDirectory()) {
@@ -75,7 +75,7 @@ function route(root) {
     }
   } else {
     responseObj.assets = root;
-    Object.keys(assets).forEach(key => {
+    Object.keys(responseObj.assets).forEach(key => {
       addMap(pathNode.sep + key);
     });
   }
@@ -88,7 +88,7 @@ function clearMap() {
 }
 
 function sortMap() {
-  map.sort(function(a, b) {
+  map.sort(function (a, b) {
     return a.sort < b.sort ? 1 : -1;
   });
 }
