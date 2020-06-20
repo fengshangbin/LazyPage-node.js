@@ -3,7 +3,6 @@ var fs = require("fs");
 var pathNode = require("path");
 var analyzeHtml = require("./analyzeHtml");
 var application = require("./application");
-var queryLazyPageSelector = require("../lib/queryLazyPage");
 
 var htmlPaths = application.data.htmlPaths,
   map = application.data.map;
@@ -90,28 +89,7 @@ function lazypage(req, res, html, cookies, next) {
       cookies,
       function (code, result) {
         if (code == 200) {
-          if (req.query.lazypageTargetSelector) {
-            var block = queryLazyPageSelector(
-              result,
-              req.query.lazypageTargetSelector
-            );
-            var resultJSON = {
-              block:
-                block != null
-                  ? block
-                      .getOuterHTML()
-                      .replace(/ lazypagelevel\d/g, "")
-                      .replace(/(\r|\n)( *(\r|\n))+/g, "\r")
-                  : null,
-              hasTargetLazyPage: block != null,
-            };
-            if (block) {
-              resultJSON.title = result.querySelector("title").getInnerHTML();
-            }
-            result = JSON.stringify(resultJSON);
-          } else {
-            result = result.html.replace(/(\r|\n)( *(\r|\n))+/g, "\r");
-          }
+          result = result.html.replace(/(\r|\n)( *(\r|\n))+/g, "\r");
           render(req, res, result);
         } else {
           if (application.data.debug) next(result);
