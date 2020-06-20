@@ -1,4 +1,4 @@
-var template = require("./template-web");
+var template = require("../lib/template-web");
 
 template.defaults.imports.Date = Date;
 template.defaults.imports.Math = Math;
