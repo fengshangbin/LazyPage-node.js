@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "node test/app.js",
-    "export": "node export.js test/static"
+    "export": "node test/export.js"
   },
   "repository": {
     "type": "git",

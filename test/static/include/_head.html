@@ -38,12 +38,12 @@
     >数据依赖模板</a
   >
   <a
-    :href="$config.root+'/requestpath/'+Date.now()"
+    :href="$config.root+'/requestpath/hello'"
     :class=" $path(0)=='requestpath' ? 'active' : '' "
     >获取URL路径</a
   >
   <a
-    :href="$config.root+'/requestquery?a='+Math.random()"
+    :href="$config.root+'/requestquery?a=hello'"
     :class=" $path(0)=='requestquery' ? 'active' : '' "
     >获取URL参数</a
   >

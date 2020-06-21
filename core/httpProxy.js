@@ -1,50 +1,11 @@
 const { URL } = require("url");
 const http = require("http");
 const https = require("https");
+const getRealUrl = require("../lib/io").getRealUrl;
 
 var application = require("./application");
 //var request = require('sync-request');
 
-function getRealUrl(rootPath, paths, url) {
-  if (checkUrl(url)) return url;
-  else {
-    //console.log("paths", paths);
-    if (url.startsWith("/")) {
-      return rootPath + url;
-    } else if (url.startsWith("../")) {
-      var count = 0;
-      while (url.startsWith("../")) {
-        url = url.substring(3);
-        count++;
-      }
-      var pathBuffer = "/";
-      for (var i = 0; i < paths.length - count; i++) {
-        pathBuffer += paths[i];
-      }
-      if (pathBuffer.length > 1) pathBuffer += "/";
-      return rootPath + pathBuffer + url;
-    } else {
-      url = url.replace(/\.\//g, "");
-      var pathStr = paths.join("/");
-      if (pathStr.length > 0) pathStr += "/";
-      return rootPath + "/" + pathStr + url;
-    }
-  }
-}
-function checkUrl(url) {
-  var regex = "^((https|http|ftp|rtsp|mms)?://)(.*?)";
-  var pattern = new RegExp(regex, "i");
-  return pattern.test(url);
-}
-function getRootPath(path) {
-  var regex = "^((https|http|ftp|rtsp|mms)?://[^/]*)";
-  var pattern = new RegExp(regex, "i");
-  var m = pattern.exec(path);
-  if (m.length > 0) {
-    return m[1];
-  }
-  return null;
-}
 function ajax(
   //mapping,
   rootPath,
