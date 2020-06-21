@@ -32,7 +32,10 @@ function response(root) {
         for (var i = 0; i < map.length; i++) {
           var key = map[i].key;
           let reg = new RegExp(key, "i");
-          if (reg.test(path)) {
+          if (
+            reg.test(path) ||
+            (path.endsWith("/") && reg.test(path + "index.html"))
+          ) {
             path = map[i].value.substring(1);
             hitHtml = true;
             /* let group = reg.exec(path);
