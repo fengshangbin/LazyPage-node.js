@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "node test/app.js"
+    "server": "node test/app.js",
+    "export": "node export.js test/static"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
   "dependencies": {
     "encodeurl": "~1.0.2",
     "escape-html": "~1.0.3",
+    "get-port": "^5.1.1",
     "parseurl": "~1.3.2",
     "send": "0.16.2",
     "sync-request": "^6.0.0",
