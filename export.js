@@ -1,4 +1,4 @@
-const getPort = require("get-port");
+const portfinder = require('portfinder');
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -17,7 +17,7 @@ function exportHTML(_root, option) {
       console.error("需要设置导出根目录  eg. node export.js rootPath");
       return;
     }
-    port = await getPort({ port: getPort.makeRange(8080, 9000) });
+    port = await portfinder.getPortPromise({ port: 8080, stopPort: 9000 });
 
     var defaultOption = {
       assets: [],
