@@ -20,6 +20,7 @@
   "author": "fengshangbin",
   "license": "MIT",
   "dependencies": {
+    "del": "^5.1.0",
     "encodeurl": "~1.0.2",
     "escape-html": "~1.0.3",
     "parseurl": "~1.3.2",

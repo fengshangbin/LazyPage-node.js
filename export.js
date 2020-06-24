@@ -2,6 +2,7 @@ const portfinder = require('portfinder');
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const del = require('del');
 const lazypage = require("./index");
 const io = require("./lib/io");
 const fastdom = require("./lib/fastdom/fastdom");
@@ -17,6 +18,7 @@ function exportHTML(_root, option) {
       console.error("需要设置导出根目录  eg. node export.js rootPath");
       return;
     }
+    await del("export");
     port = await portfinder.getPortPromise({ port: 8080, stopPort: 9000 });
 
     var defaultOption = {
