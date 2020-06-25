@@ -1,4 +1,4 @@
-var fastdom = require("../lib/fastdom/fastdom");
+var fastdom = require("fastdomparse-node");
 var template = require("../lib/template-web");
 var application = require("./application");
 var ajax = require("./httpProxy");
