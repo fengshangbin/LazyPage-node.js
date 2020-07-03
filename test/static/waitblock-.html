@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0" />
     <title>数据依赖模板</title>
-  </head>
-  <body>
+</head>
+
+<body>
     <block src="/include/_head.html"></block>
     <hr>
 
@@ -32,7 +31,7 @@
     <pre>
         <code>
             &lt;block source=&quot;{&#39;name&#39;:&#39;zhangsan&#39;, &#39;age&#39;:19, &#39;color&#39;: &#39;green&#39;}&quot; wait=&quot;wanger&quot;&gt;
-                &lt;div :style=&quot;&#39;color:&#39;+color&quot;&gt;{{ name }} before {{ $block(&quot;wanger&quot;).name }}&lt;/div&gt;
+                &lt;div :style=&quot;&#39;color:&#39;+color&quot;&gt;{{ name }} before {{ $block.wanger.name }}&lt;/div&gt;
             &lt;/block&gt;
             <br>
             &lt;block source=&quot;{&#39;name&#39;:&#39;wanger&#39;, &#39;age&#39;:21, &#39;color&#39;: &#39;blue&#39;, &#39;class&#39;: &#39;black&#39;}&quot; id=&quot;wanger&quot;&gt;
@@ -43,10 +42,10 @@
             &lt;/block&gt;
             <br>
             &lt;block source=&quot;{&#39;name&#39;:&#39;lisi&#39;, &#39;age&#39;:20, &#39;color&#39;: &#39;red&#39;}&quot;&gt;
-                &lt;div :style=&quot;&#39;color:&#39;+color&quot;&gt;{{ name }} after {{ $block(&quot;wanger&quot;).name }}&lt;/div&gt;
+                &lt;div :style=&quot;&#39;color:&#39;+color&quot;&gt;{{ name }} after {{ $block.wanger.name }}&lt;/div&gt;
             &lt;/block&gt;
         </code>
-    </pre>  
-  </body>
-</html>
+    </pre>
+</body>
 
+</html>

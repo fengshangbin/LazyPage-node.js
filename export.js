@@ -83,7 +83,7 @@ function requestPage() {
           var allHrefs = doc.querySelectorAll("a[href]");
           for (var i = 0; i < allHrefs.length; i++) {
             var url = allHrefs[i].getAttribute("href");
-            if (url == null || /^javascript/i.test(url)) {
+            if (url == null || /^javascript/i.test(url) || /^tel:/i.test(url) || /^mailto:/i.test(url)) {
               continue;
             }
             urlQueue.push({ parent: finaleURL, path: url });
