@@ -1,15 +1,11 @@
 const { URL } = require("url");
 const http = require("http");
 const https = require("https");
-const getRealUrl = require("../lib/io").getRealUrl;
 
 var application = require("./application");
 //var request = require('sync-request');
 
 function ajax(
-  //mapping,
-  rootPath,
-  paths,
   method,
   urlString,
   parameters,
@@ -20,7 +16,6 @@ function ajax(
   //rootPath = 'http://localhost:8181/';
   if (method == null) method = "GET";
   method = method.toUpperCase();
-  urlString = getRealUrl(rootPath, paths, urlString);
   var mapping = application.data.mapping;
   if (mapping) {
     for (var i = 0; i < mapping.length; i++) {
@@ -79,21 +74,5 @@ function ajax(
     req.write(parameters);
   req.end();
 }
-
-/*module.exports=test;
-function test(){
-	var path = "Http://www.baidu.com/1/2/3/ni.html";
-	var rootPath = getRootPath(path);
-	var regex = "("+rootPath+"/?)";
-	var pattern = new RegExp(regex, "g");
-	path = path.replace(pattern, "");
-	if(path.endsWith("/"))path+="end";
-	var paths = path.split("/");
-	paths.pop();
-	var url = getRealUrl(rootPath, paths, "/a1.data");
-	console.log(url);
-	var result = ajax(rootPath, paths, "post", "/a1.data", "id=2&no=4", "LazyPageSpider=0");
-	console.log(result);
-}*/
 
 module.exports = ajax;

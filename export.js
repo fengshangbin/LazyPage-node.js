@@ -4,8 +4,9 @@ const fs = require("fs");
 const path = require("path");
 const del = require('del');
 const lazypage = require("./index");
-const io = require("./lib/io");
-const fastdom = require("./lib/fastdom/fastdom");
+const io = require("./core/ioUtils");
+const pathUtils = require("./core/pathUtils");
+const fastdom = require("fastdomparse-node");
 const ajax = require("./core/httpProxy");
 
 let root, port, server, assets, indexPage, unlinkPage, urlQueue;
@@ -57,24 +58,18 @@ function listen(root, port) {
 function requestPage() {
   var target = urlQueue.shift();
   if (target != undefined) {
-    var pathsObject = getPathsObject(target.parent);
-    var rootPath = pathsObject.rootPath;
-    var paths = pathsObject.paths;
-    var finaleURL = io.getRealUrl(rootPath, paths, target.path);
-    var targetObject = getPathsObject(finaleURL);
-    //console.log(targetObject);
+    var finaleURL = pathUtils.getFinalURL(target.parent, target.path);
+    var targetDomain = pathUtils.getDomain(finaleURL);
     if (
-      targetObject.rootPath != "http://localhost:" + port ||
+      targetDomain != "http://localhost:" + port ||
       loaded[finaleURL] == true
     ) {
       requestPage();
     } else {
       loaded[finaleURL] = true;
       ajax(
-        rootPath,
-        paths,
         "GET",
-        target.path,
+        finaleURL,
         null,
         null,
         function (data) {
@@ -89,13 +84,10 @@ function requestPage() {
             urlQueue.push({ parent: finaleURL, path: url });
           }
 
-          var finalePaths = targetObject.paths;
-          if (finalePaths[finalePaths.length] == "") finalePaths.pop();
-          var finalePath = finalePaths.join("/");
+          var finalePath = pathUtils.getPath(finaleURL);
           if (finalePath.indexOf(".") == -1)
-            finalePath = finalePath + "/index.html";
+            finalePath = finalePath + (finalePath.endsWith("/") ? "" : "/") + "index.html";
           var savePath = "./export/" + finalePath;
-          savePath = savePath.replace(/\/\//g, "/");
 
           var savePathDir = path.parse(savePath).dir;
           (async () => {
@@ -110,6 +102,7 @@ function requestPage() {
         },
         function (error) {
           console.error(error);
+          requestPage();
         }
       );
     }

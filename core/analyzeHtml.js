@@ -1,5 +1,6 @@
 var fastdom = require("fastdomparse-node");
 var template = require("../lib/template-web");
+var pathUtils = require("./pathUtils");
 var application = require("./application");
 var ajax = require("./httpProxy");
 require("./template-global");
@@ -7,9 +8,7 @@ require("./template-global");
 var analyzeHtml = function () {
   var dataMap = {};
   var doc;
-  //var mapping;
-  var rootPath;
-  var paths;
+  var path;
   var query;
   var pathnames;
   var cookies;
@@ -19,32 +18,17 @@ var analyzeHtml = function () {
   var contextID = Date.now() + "-" + parseInt(Math.random() * 10000);
 
   this.parse = function (
-    //_mapping,
-    //ignorePath,
-    path,
+    _path,
     _query,
     html,
-    //_pathParams,
     _cookies,
     _callback
   ) {
     //console.log("path", path);
     doc = new fastdom(html);
-    //mapping = _mapping;
-    rootPath = getRootPath(path);
-    var regex = "(" + rootPath + "/?)";
-    //if (realHost) rootPath = realHost;
-    var pattern = new RegExp(regex, "g");
-    path = path.replace(pattern, "");
-    pathnames = path
-      .replace(new RegExp("/?" + application.data.ignorePath + "/?", "i"), "")
-      .split("/");
-    if (path.endsWith("/")) path += "end";
-    paths = path.split("/");
-    paths.pop();
-    //console.log("this.paths", paths);
+    path = _path;
+    pathnames = pathUtils.getPathsWithIgnorePath(path, application.data.ignorePath);
     query = _query;
-    //pathParams = _pathParams;
     cookies = _cookies;
     callback = _callback;
 
@@ -111,12 +95,10 @@ var analyzeHtml = function () {
         } else {
           let ajaxType = block.getAttribute("rquest-type");
           let ajaxData = block.getAttribute("rquest-param");
+          let url = pathUtils.getFinalURL(path, source);
           ajax(
-            //mapping,
-            rootPath,
-            paths,
             ajaxType,
-            source,
+            url,
             ajaxData,
             cookies,
             function (result) {
@@ -138,12 +120,10 @@ var analyzeHtml = function () {
 
       var src = block.getAttribute("src");
       if (src != null && src != "") {
+        let url = pathUtils.getFinalURL(path, src);
         ajax(
-          //mapping,
-          rootPath,
-          paths,
           null,
-          src,
+          url,
           null,
           cookies,
           function (result) {
