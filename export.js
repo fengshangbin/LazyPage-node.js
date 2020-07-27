@@ -33,7 +33,7 @@ function exportHTML(_root, option) {
     indexPage = defaultOption.indexPage;
     unlinkPage = defaultOption.unlinkPage;
     urlQueue = [{ parent: "http://localhost:" + port, path: indexPage }];
-    for (var i = 0; i < unlinkPage; i++) {
+    for (var i = 0; i < unlinkPage.length; i++) {
       urlQueue.push({
         parent: "http://localhost:" + port,
         path: unlinkPage[i],
@@ -78,7 +78,8 @@ function requestPage() {
           var allHrefs = doc.querySelectorAll("a[href]");
           for (var i = 0; i < allHrefs.length; i++) {
             var url = allHrefs[i].getAttribute("href");
-            if (url == null || /^javascript/i.test(url) || /^tel:/i.test(url) || /^mailto:/i.test(url)) {
+            if (url != null) url = url.trim();
+            if (url == null || /^javascript/i.test(url) || /^tel:/i.test(url) || /^mailto:/i.test(url) || /^sms:/i.test(url)) {
               continue;
             }
             urlQueue.push({ parent: finaleURL, path: url });
